@@ -1,0 +1,165 @@
+/**
+ * build.gradle - scheaggr-api-master.
+ */
+
+ext {
+    defaultEncoding = 'UTF-8'
+    javaVersion = 1.8
+
+    // param: target environment
+    if (!project.hasProperty('env')) {
+        env = 'dev'
+    }
+}
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+    }
+    dependencies {
+        // dependencies updated version check
+        classpath group: 'com.github.ben-manes', name: 'gradle-versions-plugin', version: '0.17.0'
+    }
+}
+
+allprojects {
+    repositories {
+        mavenCentral()
+        mavenLocal()
+    }
+
+    apply {
+        plugin 'project-report'
+        plugin 'eclipse'
+        plugin 'com.github.ben-manes.versions'
+    }
+
+    // eclipse settings
+    tasks.cleanEclipse.doLast {
+        delete(".settings")
+    }
+
+    // eclise settings - gradle
+    eclipse {
+        project {
+            natures 'org.eclipse.buildship.core.gradleprojectnature'
+            buildCommand 'org.eclipse.buildship.core.gradleprojectbuilder'
+        }
+    }
+    tasks.eclipse.doLast {
+        def settingsDir =   new File('.settings')
+        settingsDir.mkdirs()
+        File buildship_prefs = file(".settings/org.eclipse.buildship.core.prefs")
+        buildship_prefs.append('''
+            connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
+            connection.project.dir=
+            eclipse.preferences.version=1
+        '''. stripIndent())
+    }
+
+    htmlDependencyReport {
+        projects = project.allprojects
+    }
+}
+
+subprojects {
+    apply {
+        plugin 'java'
+        plugin 'eclipse-wtp'
+        plugin 'checkstyle'
+        plugin 'findbugs'
+        plugin 'jacoco'
+    }
+
+    sourceCompatibility = javaVersion
+    targetCompatibility = javaVersion
+    tasks.withType(JavaCompile) {
+        options.encoding = defaultEncoding
+    }
+
+    tasks.withType(Test) {
+        testLogging {
+            exceptionFormat = 'full'
+            showCauses true
+            showExceptions true
+            showStackTraces true
+            showStandardStreams true
+        }
+    }
+
+    dependencies {
+        compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.20'
+        testCompile group: 'junit', name:'junit', version:'4.12'
+    }
+
+    // eclise settings
+    tasks.cleanEclipse.doLast {
+        delete(".checkstyle")
+    }
+
+    // // eclise settings
+    // eclipse {
+    //     project {
+    //         // checkstyle
+    //         natures 'net.sf.eclipsecs.core.CheckstyleNature'
+    //         buildCommand 'net.sf.eclipsecs.core.CheckstyleBuilder'
+
+    //         // findbugs
+    //         natures 'edu.umd.cs.findbugs.plugin.eclipse.findbugsNature'
+    //         buildCommand 'edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder'
+    //     }
+    //     // jdt.file {
+    //     //     withProperties { properties ->
+    //     //         def formatter = new XmlSlurper().parse('../iroha-common/ext/conf/formatter/np_format.xml')
+    //     //         formatter.profile.setting.each {
+    //     //             properties.put(it.@id as String, it.@value as String)
+    //     //         }
+    //     //     }
+    //     // }
+    // }
+
+    // // eclise settings
+    // tasks.eclipse.doLast {
+    //     File ui_prefs = file(".settings/org.eclipse.jdt.ui.prefs")
+    //     ui_prefs.append('''
+    //         eclipse.preferences.version=1
+    //         formatter_profile=_np
+    //         formatter_settings_version=13
+    //     '''. stripIndent())
+
+    //     // copy {
+    //     //     from '../iroha-common/ext/conf/checkstyle/dot.checkstyle'
+    //     //     into '.'
+    //     //     rename(/dot\.checkstyle/, '.checkstyle')
+    //     // }
+    //     // copy {
+    //     //     from '../iroha-common/ext/conf/findbugs/edu.umd.cs.findbugs.core.prefs'
+    //     //     into '.settings/'
+    //     // }
+    //     // copy {
+    //     //     from '../iroha-common/ext/conf/validator/org.eclipse.wst.validation.prefs'
+    //     //     into '.settings/'
+    //     // }
+    // }
+
+    // // check configuration - checkstyle
+    // // checkstyle {
+    // //     configFile = file('../iroha-common/ext/conf/checkstyle/np_checkstyle.xml')
+    // //     ignoreFailures = true
+    // //     showViolations = true
+
+    // // }
+
+    // // check configuration - findbugs
+    // findbugs {
+    //     toolVersion = '3.0.1'
+    //     ignoreFailures = true
+    //     effort = 'default'
+    // }
+
+    // // jacoco
+    // jacoco {
+    //     toolVersion = '0.7.9'
+    // }
+}
