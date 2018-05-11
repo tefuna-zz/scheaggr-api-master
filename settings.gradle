@@ -16,4 +16,8 @@ include 'services:webservice'
 */
 
 rootProject.name = 'scheaggr-api-master'
-includeFlat 'tfn-common'
+includeFlat 'tn-common'
+includeFlat 'tn-rest-client-core'
+includeFlat 'scheaggr-code'
+includeFlat 'scheaggr-api-client'
+includeFlat 'scheaggr-api'

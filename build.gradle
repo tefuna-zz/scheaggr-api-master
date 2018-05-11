@@ -1,5 +1,5 @@
 /**
- * build.gradle - scheaggr-api-master.
+ * build.gradle: scheaggr-api-master.
  */
 
 ext {
@@ -37,7 +37,7 @@ allprojects {
 
     // eclipse settings
     tasks.cleanEclipse.doLast {
-        delete(".settings")
+        delete('.settings')
     }
 
     // eclise settings - gradle
@@ -50,7 +50,7 @@ allprojects {
     tasks.eclipse.doLast {
         def settingsDir =   new File('.settings')
         settingsDir.mkdirs()
-        File buildship_prefs = file(".settings/org.eclipse.buildship.core.prefs")
+        File buildship_prefs = file('.settings/org.eclipse.buildship.core.prefs')
         buildship_prefs.append('''
             connection.gradle.distribution=GRADLE_DISTRIBUTION(WRAPPER)
             connection.project.dir=
@@ -95,61 +95,60 @@ subprojects {
 
     // eclise settings
     tasks.cleanEclipse.doLast {
-        delete(".checkstyle")
+        delete('.checkstyle')
     }
 
-    // // eclise settings
-    // eclipse {
-    //     project {
-    //         // checkstyle
-    //         natures 'net.sf.eclipsecs.core.CheckstyleNature'
-    //         buildCommand 'net.sf.eclipsecs.core.CheckstyleBuilder'
+    // eclise settings
+    eclipse {
+        project {
+            // checkstyle
+            natures 'net.sf.eclipsecs.core.CheckstyleNature'
+            buildCommand 'net.sf.eclipsecs.core.CheckstyleBuilder'
 
-    //         // findbugs
-    //         natures 'edu.umd.cs.findbugs.plugin.eclipse.findbugsNature'
-    //         buildCommand 'edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder'
-    //     }
-    //     // jdt.file {
-    //     //     withProperties { properties ->
-    //     //         def formatter = new XmlSlurper().parse('../iroha-common/ext/conf/formatter/np_format.xml')
-    //     //         formatter.profile.setting.each {
-    //     //             properties.put(it.@id as String, it.@value as String)
-    //     //         }
-    //     //     }
-    //     // }
-    // }
+            // findbugs
+            natures 'edu.umd.cs.findbugs.plugin.eclipse.findbugsNature'
+            buildCommand 'edu.umd.cs.findbugs.plugin.eclipse.findbugsBuilder'
+        }
+        jdt.file {
+            withProperties { properties ->
+                def formatter = new XmlSlurper().parse(getProperty('eclipse.formatter.config'))
+                formatter.profile.setting.each {
+                    properties.put(it.@id as String, it.@value as String)
+                }
+            }
+        }
+    }
 
-    // // eclise settings
-    // tasks.eclipse.doLast {
-    //     File ui_prefs = file(".settings/org.eclipse.jdt.ui.prefs")
-    //     ui_prefs.append('''
-    //         eclipse.preferences.version=1
-    //         formatter_profile=_np
-    //         formatter_settings_version=13
-    //     '''. stripIndent())
+    // eclise settings
+    tasks.eclipse.doLast {
+        File ui_prefs = file('.settings/org.eclipse.jdt.ui.prefs')
+        def profileName = getProperty('eclipse.formatter.profile.name')
+        ui_prefs.append("""
+            eclipse.preferences.version=1
+            formatter_profile=${profileName}
+            formatter_settings_version=13
+        """.stripIndent())
 
-    //     // copy {
-    //     //     from '../iroha-common/ext/conf/checkstyle/dot.checkstyle'
-    //     //     into '.'
-    //     //     rename(/dot\.checkstyle/, '.checkstyle')
-    //     // }
-    //     // copy {
-    //     //     from '../iroha-common/ext/conf/findbugs/edu.umd.cs.findbugs.core.prefs'
-    //     //     into '.settings/'
-    //     // }
-    //     // copy {
-    //     //     from '../iroha-common/ext/conf/validator/org.eclipse.wst.validation.prefs'
-    //     //     into '.settings/'
-    //     // }
-    // }
+        copy {
+            from getProperty('eclipse.checkstyle.dotfile')
+            into '.'
+        }
+        copy {
+            from getProperty('eclipse.findbugs.config')
+            into '.settings/'
+        }
+        copy {
+            from getProperty('eclipse.validator.config')
+            into '.settings/'
+        }
+    }
 
     // // check configuration - checkstyle
-    // // checkstyle {
-    // //     configFile = file('../iroha-common/ext/conf/checkstyle/np_checkstyle.xml')
-    // //     ignoreFailures = true
-    // //     showViolations = true
-
-    // // }
+    // checkstyle {
+    //     configFile = file('../iroha-common/ext/conf/checkstyle/np_checkstyle.xml')
+    //     ignoreFailures = true
+    //     showViolations = true
+    // }
 
     // // check configuration - findbugs
     // findbugs {
